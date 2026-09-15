@@ -1,8 +1,10 @@
 package net.pbreadman.xcweaponry.items;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.component.Unbreakable;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -16,9 +18,11 @@ public class ModItems {
 
     //enchant and buster should start on it
     public static final DeferredItem<SwordItem> MONADO = ITEMS.register("monado",
-            () -> new MonadoBase(ModToolTiers.MONADO, new Item
+            () -> new SwordItem(ModToolTiers.MONADO, new Item
                     .Properties()
+                    .attributes(SwordItem.createAttributes(ModToolTiers.MONADO, 3, -2.4f))
                     .fireResistant()
+                    .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
                     .component(ModDataComponents.UNLOCKED_ENCHANT.get(), Unit.INSTANCE)
                     .component(ModDataComponents.UNLOCKED_BUSTER.get(), Unit.INSTANCE)
                    ));
