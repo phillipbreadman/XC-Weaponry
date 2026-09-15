@@ -2,13 +2,9 @@
   "type": "xcweaponry:monado_art",
   "template": { "item": "xcweaponry:monado_art_template" },
   "base": { "tag": "xcweaponry:monado" },
-  "addition": { "item": "xcweaponry:art_buster" },
-  "unlock_component": "xcweaponry:unlocked_buster",
+  "addition": { "tag": "xcweaponry:arts" },
   "result": {
     "id": "xcweaponry:monado",
-    "count": 1,
-    "components": {
-      "xcweaponry:unlocked_buster": {}
-    }
+    "count": 1
   }
 }
