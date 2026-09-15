@@ -9,7 +9,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.pbreadman.xcweaponry.items.ModItems;
 
-
 public class ModEvents {
     @SubscribeEvent
     public static void OntosUse(PlayerInteractEvent.RightClickItem event) {
