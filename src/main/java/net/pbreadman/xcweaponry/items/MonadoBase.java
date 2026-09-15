@@ -1,6 +1,5 @@
 package net.pbreadman.xcweaponry.items;
 
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
