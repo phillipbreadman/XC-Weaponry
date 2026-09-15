@@ -19,7 +19,7 @@ public class ModItems {
 
     //enchant and buster should start on it
     public static final DeferredItem<SwordItem> MONADO = ITEMS.register("monado",
-            () -> new SwordItem(ModToolTiers.MONADO, new Item
+            () -> new MonadoBase(ModToolTiers.MONADO, new Item
                     .Properties()
                     .attributes(SwordItem.createAttributes(ModToolTiers.MONADO, 3, -2.4f))
                     .fireResistant()
