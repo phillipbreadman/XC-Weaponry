@@ -29,7 +29,7 @@ public class XCWeaponry {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "xcweaponry";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public XCWeaponry(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
