@@ -12,7 +12,7 @@ public class ModToolTiers {
             0,
             8.0f,
             4.0f,
-            25,
+            0,
             () -> Ingredient.of(Items.AMETHYST_SHARD)
     );
 }
