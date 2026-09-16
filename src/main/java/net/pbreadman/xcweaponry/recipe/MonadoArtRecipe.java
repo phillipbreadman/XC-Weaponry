@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -58,6 +59,8 @@ public class MonadoArtRecipe implements SmithingRecipe {
         DataComponentType<?> unlock = resolveUnlock(registries, input.addition());
         if (unlock != null) {
             itemstack.set(castUnitComponent(unlock), Unit.INSTANCE);
+            itemstack.remove(ModDataComponents.SELECTED_ART.get());
+            itemstack.remove(DataComponents.CUSTOM_MODEL_DATA);
         }
         return itemstack;
     }

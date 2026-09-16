@@ -2,5 +2,15 @@
   "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "xcweaponry:item/monado"
-  }
+  },
+  "overrides": [
+    { "predicate": { "custom_model_data": 1 }, "model": "xcweaponry:item/monado_shield" },
+    { "predicate": { "custom_model_data": 2 }, "model": "xcweaponry:item/monado_armour" },
+    { "predicate": { "custom_model_data": 3 }, "model": "xcweaponry:item/monado_speed" },
+    { "predicate": { "custom_model_data": 4 }, "model": "xcweaponry:item/monado_enchant" },
+    { "predicate": { "custom_model_data": 5 }, "model": "xcweaponry:item/monado_buster" },
+    { "predicate": { "custom_model_data": 6 }, "model": "xcweaponry:item/monado_cyclone" },
+    { "predicate": { "custom_model_data": 7 }, "model": "xcweaponry:item/monado_eater" },
+    { "predicate": { "custom_model_data": 8 }, "model": "xcweaponry:item/monado_purge" }
+  ]
 }

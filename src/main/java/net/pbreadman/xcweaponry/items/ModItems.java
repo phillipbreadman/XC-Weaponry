@@ -34,82 +34,34 @@ public class ModItems {
     public static final DeferredItem<Item> ART_SHIELD = ITEMS.register("art_shield",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_shield"))));
-    public static final DeferredItem<MonadoShieldItem> MONADO_SHIELD = ITEMS.register("monado_shield",
-            () -> new MonadoShieldItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-  ));
-
 
     public static final DeferredItem<Item> ART_ARMOUR = ITEMS.register("art_armour",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_armour"))));
 
-    public static final DeferredItem<MonadoArmourItem> MONADO_ARMOUR = ITEMS.register("monado_armour",
-            () -> new MonadoArmourItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));;
-
-
     public static final DeferredItem<Item> ART_SPEED = ITEMS.register("art_speed",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_speed"))));
-    public static final DeferredItem<MonadoSpeedItem> MONADO_SPEED = ITEMS.register("monado_speed",
-            () -> new MonadoSpeedItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
-
 
     public static final DeferredItem<Item> ART_ENCHANT = ITEMS.register("art_enchant",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_enchant"))));
 
-    public static final DeferredItem<MonadoEnchantItem> MONADO_ENCHANT = ITEMS.register("monado_enchant",
-            () -> new MonadoEnchantItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
-
-
     public static final DeferredItem<Item> ART_BUSTER = ITEMS.register("art_buster",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_buster"))));
-    public static final DeferredItem<MonadoBusterItem> MONADO_BUSTER = ITEMS.register("monado_buster",
-            () -> new MonadoBusterItem(ModToolTiers.MONADO, 7,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
-
 
     public static final DeferredItem<Item> ART_CYCLONE = ITEMS.register("art_cyclone",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_cyclone"))));
-    public static final DeferredItem<MonadoCycloneItem> MONADO_CYCLONE = ITEMS.register("monado_cyclone",
-            () -> new MonadoCycloneItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
-
 
     public static final DeferredItem<Item> ART_EATER = ITEMS.register("art_eater",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_eater"))));
-    public static final DeferredItem<MonadoEaterItem> MONADO_EATER = ITEMS.register("monado_eater",
-            () -> new MonadoEaterItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
 
     public static final DeferredItem<Item> ART_PURGE = ITEMS.register("art_purge",
             () -> new Item(new Item.Properties()
                     .component(ModDataComponents.UNLOCKS_COMPONENT.get(), ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "unlocked_purge"))));
-    public static final DeferredItem<MonadoEaterItem> MONADO_PURGE = ITEMS.register("monado_purge",
-            () -> new MonadoEaterItem(ModToolTiers.MONADO, 1,-2.4f, new Item
-                    .Properties()
-                    .fireResistant()
-            ));
 
     public static final DeferredItem<Item> ETHER = ITEMS.register("ether",
             () -> new Item(new Item.Properties()));

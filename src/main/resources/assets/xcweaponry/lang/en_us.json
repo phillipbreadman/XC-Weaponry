@@ -4,21 +4,13 @@
   "item.xcweaponry.monado_art_template": "Monado Art Template",
 
   "item.xcweaponry.art_shield": "Shield",
-  "item.xcweaponry.monado_shield": "Monado Shield",
   "item.xcweaponry.art_enchant": "Enchant",
-  "item.xcweaponry.monado_enchant": "Monado Enchant",
   "item.xcweaponry.art_buster": "Buster",
-  "item.xcweaponry.monado_buster": "Monado Buster",
   "item.xcweaponry.art_eater": "Eater",
-  "item.xcweaponry.monado_eater": "Monado Eater",
   "item.xcweaponry.art_speed": "Speed",
-  "item.xcweaponry.monado_speed": "Monado Speed",
   "item.xcweaponry.art_cyclone": "Cyclone",
-  "item.xcweaponry.monado_cyclone": "Monado Cyclone",
   "item.xcweaponry.art_armour": "Armour",
-  "item.xcweaponry.monado_armour": "Monado Armour",
   "item.xcweaponry.art_purge": "Purge",
-  "item.xcweaponry.monado_purge": "Monado Purge",
   "item.xcweaponry.ether": "Ether",
   "item.xcweaponry.ontos": "Ontos Core",
   "item.xcweaponry.core_crystal": "Core Crystal",
@@ -27,5 +19,12 @@
   "item.xcweaponry.smithing_template.monado_upgrade.ingredients": "Monado",
   "item.xcweaponry.smithing_template.monado_upgrade.base_slot_description": "Add THE Monado",
   "item.xcweaponry.smithing_template.monado_upgrade.additions_slot_description": "Add an Art",
-  "upgrade.xcweaponry.monado_upgrade": "Monado Upgrade"
+  "upgrade.xcweaponry.monado_upgrade": "Monado Upgrade",
+
+  "key.categories.xcweaponry": "XC Weaponry",
+  "key.xcweaponry.openartwheel": "Open Art Wheel",
+  "gui.xcweaponry.artwheel": "Art Wheel",
+  "gui.xcweaponry.artwheel.reset": "Reset",
+  "gui.xcweaponry.artwheel.no_arts": "No arts unlocked yet.",
+  "message.xcweaponry.need_monado": "You must hold a Monado to open the Art Wheel."
 }

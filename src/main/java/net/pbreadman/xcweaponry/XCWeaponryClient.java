@@ -7,8 +7,10 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.pbreadman.xcweaponry.client.ModKeyMappings;
 
 @Mod(value = XCWeaponry.MOD_ID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = XCWeaponry.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -20,5 +22,10 @@ public class XCWeaponryClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         XCWeaponry.LOGGER.info("XCWeaponry is loaded on the client");
+    }
+
+    @SubscribeEvent
+    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(ModKeyMappings.OPEN_ART_WHEEL);
     }
 }
