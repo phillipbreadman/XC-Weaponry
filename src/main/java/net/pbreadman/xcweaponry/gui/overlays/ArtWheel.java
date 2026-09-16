@@ -57,13 +57,6 @@ public class ArtWheel extends Screen {
         int cy = this.height / 2;
         this.hovered = -1;
 
-        if (this.unlocked.isEmpty()) {
-            graphics.drawCenteredString(this.font,
-                    Component.translatable("gui.xcweaponry.artwheel.no_arts"),
-                    cx, cy - 8, 0xAAAAAA);
-            return;
-        }
-
         double dx = mouseX - cx;
         double dy = mouseY - cy;
         double dist = Math.sqrt(dx * dx + dy * dy);

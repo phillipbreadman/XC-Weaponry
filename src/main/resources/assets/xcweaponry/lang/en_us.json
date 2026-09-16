@@ -25,6 +25,5 @@
   "key.xcweaponry.openartwheel": "Open Art Wheel",
   "gui.xcweaponry.artwheel": "Art Wheel",
   "gui.xcweaponry.artwheel.reset": "Reset",
-  "gui.xcweaponry.artwheel.no_arts": "No arts unlocked yet.",
   "message.xcweaponry.need_monado": "You must hold a Monado to open the Art Wheel."
 }
