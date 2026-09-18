@@ -19,6 +19,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
+import net.pbreadman.xcweaponry.items.MonadoBase;
 import net.pbreadman.xcweaponry.items.custom.ModDataComponents;
 
 public class MonadoArtRecipe implements SmithingRecipe {
@@ -61,6 +62,7 @@ public class MonadoArtRecipe implements SmithingRecipe {
             itemstack.set(castUnitComponent(unlock), Unit.INSTANCE);
             itemstack.remove(ModDataComponents.SELECTED_ART.get());
             itemstack.remove(DataComponents.CUSTOM_MODEL_DATA);
+            MonadoBase.syncArtDamageModifier(itemstack);
         }
         return itemstack;
     }

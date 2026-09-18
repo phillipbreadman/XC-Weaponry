@@ -5,36 +5,22 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.pbreadman.xcweaponry.ModConstants;
 import net.pbreadman.xcweaponry.items.MonadoArt;
 import net.pbreadman.xcweaponry.network.ArtPayload;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class ArtWheel extends Screen {
-    private static final double OUTER_RADIUS = 120.0D;
-    private static final double INNER_RADIUS = 44.0D;
-    private static final int SEGMENTS_PER_SLICE = 18;
-    private static final double START_ANGLE = -Math.PI / 2.0D;
-    private static final int[] SLICE_COLORS = {
-            0xFFE74C3C, 0xFFE67E22, 0xFFF1C40F, 0xFF2ECC71,
-            0xFF1ABC9C, 0xFF3498DB, 0xFF9B59B6, 0xFFE84393
-    };
-    private static final int CENTER_COLOR = 0xFF1F2430;
-    private static final int CENTER_HOVER_COLOR = 0xFF3A4152;
+    private static final double TAU = Math.PI * 2.0D;
 
     private final List<MonadoArt> unlocked;
     private int hovered = -1;
@@ -60,19 +46,22 @@ public class ArtWheel extends Screen {
         double dx = mouseX - cx;
         double dy = mouseY - cy;
         double dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= OUTER_RADIUS && dist > INNER_RADIUS) {
+        if (dist <= ModConstants.ART_WHEEL_OUTER_RADIUS && dist > ModConstants.ART_WHEEL_INNER_RADIUS) {
             this.hovered = angleToIndex(Math.atan2(dy, dx));
         }
 
+        drawBackground(graphics, cx, cy);
         drawSlices(graphics, cx, cy);
+        drawSeparators(graphics, cx, cy);
         drawLabels(graphics, cx, cy);
-        drawCenter(graphics, cx, cy, dist <= INNER_RADIUS);
-        graphics.drawCenteredString(this.font, this.title, cx, (int) (cy - OUTER_RADIUS - 24), 0xFFFFFF);
+        drawCenter(graphics, cx, cy, dist <= ModConstants.ART_WHEEL_INNER_RADIUS);
+        graphics.drawCenteredString(this.font, this.title, cx,
+                (int) (cy - ModConstants.ART_WHEEL_OUTER_RADIUS - ModConstants.ART_WHEEL_TITLE_Y_OFFSET), 0xFFFFFF);
     }
 
     /**
-     * Called when the art wheel key is released. Selects the art (or reset) under
-     * the cursor, or closes without changing if the cursor is outside the wheel.
+       Called when the art wheel key is released. Selects the art (or reset) under
+       the cursor, or closes without changing if the cursor is outside the wheel.
      */
     public void commit() {
         commitAt(this.lastMouseX, this.lastMouseY);
@@ -97,8 +86,8 @@ public class ArtWheel extends Screen {
         double dx = x - cx;
         double dy = y - cy;
         double dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= OUTER_RADIUS) {
-            if (dist <= INNER_RADIUS) {
+        if (dist <= ModConstants.ART_WHEEL_OUTER_RADIUS) {
+            if (dist <= ModConstants.ART_WHEEL_INNER_RADIUS) {
                 select("");
             } else {
                 int index = angleToIndex(Math.atan2(dy, dx));
@@ -120,74 +109,125 @@ public class ArtWheel extends Screen {
 
     private void drawSlices(GuiGraphics graphics, int cx, int cy) {
         int count = this.unlocked.size();
-        double sliceAngle = Math.PI * 2.0D / count;
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        if (count <= 0) {
+            return;
+        }
+        double sliceAngle = TAU / count;
+        Matrix4f matrix = graphics.pose().last().pose();
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.debugQuads());
         for (int i = 0; i < count; i++) {
-            double a0 = START_ANGLE + i * sliceAngle;
-            int color = i == this.hovered ? brighten(this.unlocked.get(i)) : SLICE_COLORS[i % SLICE_COLORS.length];
-            for (int s = 0; s < SEGMENTS_PER_SLICE; s++) {
-                double t0 = a0 + sliceAngle * s / SEGMENTS_PER_SLICE;
-                double t1 = a0 + sliceAngle * (s + 1) / SEGMENTS_PER_SLICE;
-                vertex(builder, cx, cy, INNER_RADIUS, t0, color);
-                vertex(builder, cx, cy, OUTER_RADIUS, t0, color);
-                vertex(builder, cx, cy, OUTER_RADIUS, t1, color);
-                vertex(builder, cx, cy, INNER_RADIUS, t1, color);
+            double a0 = ModConstants.ART_WHEEL_START_ANGLE + i * sliceAngle;
+            int color = i == this.hovered ? brighten(ModConstants.ART_WHEEL_SLICE_BACKGROUND_COLOR) : ModConstants.ART_WHEEL_SLICE_BACKGROUND_COLOR;
+            for (int s = 0; s < ModConstants.ART_WHEEL_SEGMENTS_PER_SLICE; s++) {
+                double t0 = a0 + sliceAngle * s / ModConstants.ART_WHEEL_SEGMENTS_PER_SLICE;
+                double t1 = a0 + sliceAngle * (s + 1) / ModConstants.ART_WHEEL_SEGMENTS_PER_SLICE;
+                quad(consumer, matrix, cx, cy, color, ModConstants.ART_WHEEL_INNER_RADIUS,
+                        ModConstants.ART_WHEEL_OUTER_RADIUS, t0, t1);
             }
         }
-        MeshData mesh = builder.build();
-        BufferUploader.drawWithShader(mesh);
-        mesh.close();
-
-        RenderSystem.disableBlend();
+        graphics.flush();
     }
 
     private void drawLabels(GuiGraphics graphics, int cx, int cy) {
         int count = this.unlocked.size();
-        double sliceAngle = Math.PI * 2.0D / count;
-        double midRadius = (OUTER_RADIUS + INNER_RADIUS) * 0.5D;
+        double sliceAngle = TAU / count;
+        double midRadius = (ModConstants.ART_WHEEL_OUTER_RADIUS + ModConstants.ART_WHEEL_INNER_RADIUS) * 0.5D;
         for (int i = 0; i < count; i++) {
-            double mid = START_ANGLE + (i + 0.5D) * sliceAngle;
+            double mid = ModConstants.ART_WHEEL_START_ANGLE + (i + 0.5D) * sliceAngle;
             float x = (float) (cx + midRadius * Math.cos(mid));
             float y = (float) (cy + midRadius * Math.sin(mid));
-            int color = i == this.hovered ? 0xFFF4D03F : 0xFFFFFFFF;
+            int color = ModConstants.ART_WHEEL_LABEL_COLORS.getOrDefault(this.unlocked.get(i),
+                    ModConstants.ART_WHEEL_LABEL_DEFAULT_COLOR);
+            if (i == this.hovered) {
+                color = brighten(color);
+            }
             graphics.drawCenteredString(this.font, capitalize(this.unlocked.get(i).getName()),
                     (int) x, (int) (y - this.font.lineHeight / 2.0F), color);
         }
     }
 
     private void drawCenter(GuiGraphics graphics, int cx, int cy, boolean hovered) {
-        int color = hovered ? CENTER_HOVER_COLOR : CENTER_COLOR;
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-        int a = color >>> 24;
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = color & 0xFF;
-        builder.addVertex(cx, cy, 0.0F).setColor(r, g, b, a);
-        for (int s = 0; s <= 32; s++) {
-            double t = Math.PI * 2.0D * s / 32;
-            float x = (float) (cx + INNER_RADIUS * Math.cos(t));
-            float y = (float) (cy + INNER_RADIUS * Math.sin(t));
-            builder.addVertex(x, y, 0.0F).setColor(r, g, b, a);
-        }
-        MeshData mesh = builder.build();
-        BufferUploader.drawWithShader(mesh);
-        mesh.close();
-        RenderSystem.disableBlend();
+        int color = hovered ? ModConstants.ART_WHEEL_CENTER_HOVER_COLOR : ModConstants.ART_WHEEL_CENTER_COLOR;
+        drawDisc(graphics, cx, cy, ModConstants.ART_WHEEL_INNER_RADIUS, color, ModConstants.ART_WHEEL_CENTER_DISC_SEGMENTS);
 
         Component reset = Component.translatable("gui.xcweaponry.artwheel.reset");
-        graphics.drawCenteredString(this.font, reset, cx, (int) (cy - this.font.lineHeight / 2.0F), 0xFFAAAAAA);
+        graphics.drawCenteredString(this.font, reset, cx,
+                (int) (cy - this.font.lineHeight / 2.0F), ModConstants.ART_WHEEL_RESET_COLOR);
+    }
+
+    private void drawBackground(GuiGraphics graphics, int cx, int cy) {
+        drawDisc(graphics, cx, cy, ModConstants.ART_WHEEL_BACKGROUND_RADIUS,
+                ModConstants.ART_WHEEL_BACKGROUND_COLOR, ModConstants.ART_WHEEL_BACKGROUND_DISC_SEGMENTS);
+    }
+
+    private static void drawDisc(GuiGraphics graphics, int cx, int cy, double radius, int color, int segments) {
+        Matrix4f matrix = graphics.pose().last().pose();
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.debugQuads());
+        addDisc(consumer, matrix, cx, cy, radius, color, segments);
+        graphics.flush();
+    }
+
+    private static void addDisc(VertexConsumer consumer, Matrix4f matrix, int cx, int cy, double radius, int color, int segments) {
+        for (int s = 0; s < segments; s++) {
+            double t0 = TAU * s / segments;
+            double t1 = TAU * (s + 1) / segments;
+            float x0 = (float) (cx + radius * Math.cos(t0));
+            float y0 = (float) (cy + radius * Math.sin(t0));
+            float x1 = (float) (cx + radius * Math.cos(t1));
+            float y1 = (float) (cy + radius * Math.sin(t1));
+            consumer.addVertex(matrix, cx, cy, 0.0F).setColor(color);
+            consumer.addVertex(matrix, x0, y0, 0.0F).setColor(color);
+            consumer.addVertex(matrix, x1, y1, 0.0F).setColor(color);
+            consumer.addVertex(matrix, cx, cy, 0.0F).setColor(color);
+        }
+    }
+
+    private void drawSeparators(GuiGraphics graphics, int cx, int cy) {
+        int count = this.unlocked.size();
+        if (count <= 0) {
+            return;
+        }
+        double sliceAngle = TAU / count;
+        Matrix4f matrix = graphics.pose().last().pose();
+        VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.debugQuads());
+        for (int i = 0; i < count; i++) {
+            double angle = ModConstants.ART_WHEEL_START_ANGLE + i * sliceAngle;
+            line(consumer, matrix, cx, cy, angle, ModConstants.ART_WHEEL_INNER_RADIUS,
+                    ModConstants.ART_WHEEL_OUTER_RADIUS, ModConstants.ART_WHEEL_SEPARATOR_WIDTH,
+                    ModConstants.ART_WHEEL_SEPARATOR_COLOR);
+        }
+        graphics.flush();
+    }
+
+    private static void quad(VertexConsumer consumer, Matrix4f matrix, int cx, int cy, int color,
+                             double radiusStart, double radiusEnd, double angleStart, double angleEnd) {
+        float x00 = (float) (cx + radiusStart * Math.cos(angleStart));
+        float y00 = (float) (cy + radiusStart * Math.sin(angleStart));
+        float x10 = (float) (cx + radiusEnd * Math.cos(angleStart));
+        float y10 = (float) (cy + radiusEnd * Math.sin(angleStart));
+        float x11 = (float) (cx + radiusEnd * Math.cos(angleEnd));
+        float y11 = (float) (cy + radiusEnd * Math.sin(angleEnd));
+        float x01 = (float) (cx + radiusStart * Math.cos(angleEnd));
+        float y01 = (float) (cy + radiusStart * Math.sin(angleEnd));
+        consumer.addVertex(matrix, x00, y00, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x10, y10, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x11, y11, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x01, y01, 0.0F).setColor(color);
+    }
+
+    private static void line(VertexConsumer consumer, Matrix4f matrix, int cx, int cy, double angle,
+                             double radiusStart, double radiusEnd, double halfWidth, int color) {
+        float cos = (float) Math.cos(angle);
+        float sin = (float) Math.sin(angle);
+        float x0 = (float) (cx + radiusStart * cos);
+        float y0 = (float) (cy + radiusStart * sin);
+        float x1 = (float) (cx + radiusEnd * cos);
+        float y1 = (float) (cy + radiusEnd * sin);
+        float hw = (float) halfWidth;
+        consumer.addVertex(matrix, x0 - sin * hw, y0 + cos * hw, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x1 - sin * hw, y1 + cos * hw, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x1 + sin * hw, y1 - cos * hw, 0.0F).setColor(color);
+        consumer.addVertex(matrix, x0 + sin * hw, y0 - cos * hw, 0.0F).setColor(color);
     }
 
     private int angleToIndex(double angle) {
@@ -195,33 +235,22 @@ public class ArtWheel extends Screen {
         if (count <= 0) {
             return -1;
         }
-        double relative = angle - START_ANGLE;
+        double relative = angle - ModConstants.ART_WHEEL_START_ANGLE;
         while (relative < 0.0D) {
-            relative += Math.PI * 2.0D;
+            relative += TAU;
         }
-        while (relative >= Math.PI * 2.0D) {
-            relative -= Math.PI * 2.0D;
+        while (relative >= TAU) {
+            relative -= TAU;
         }
-        int index = (int) (relative / (Math.PI * 2.0D / count));
+        int index = (int) (relative / (TAU / count));
         return index >= count ? count - 1 : index;
     }
 
-    private static int brighten(MonadoArt art) {
-        int base = SLICE_COLORS[art.ordinal() % SLICE_COLORS.length];
-        int r = Math.min(255, ((base >> 16) & 0xFF) + 60);
-        int g = Math.min(255, ((base >> 8) & 0xFF) + 60);
-        int b = Math.min(255, (base & 0xFF) + 60);
+    private static int brighten(int base) {
+        int r = Math.min(255, ((base >> 16) & 0xFF) + ModConstants.ART_WHEEL_BRIGHTEN_AMOUNT);
+        int g = Math.min(255, ((base >> 8) & 0xFF) + ModConstants.ART_WHEEL_BRIGHTEN_AMOUNT);
+        int b = Math.min(255, (base & 0xFF) + ModConstants.ART_WHEEL_BRIGHTEN_AMOUNT);
         return 0xFF000000 | (r << 16) | (g << 8) | b;
-    }
-
-    private static void vertex(BufferBuilder builder, int cx, int cy, double radius, double angle, int color) {
-        float x = (float) (cx + radius * Math.cos(angle));
-        float y = (float) (cy + radius * Math.sin(angle));
-        int a = color >>> 24;
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = color & 0xFF;
-        builder.addVertex(x, y, 0.0F).setColor(r, g, b, a);
     }
 
     private static List<MonadoArt> getUnlockedArts() {

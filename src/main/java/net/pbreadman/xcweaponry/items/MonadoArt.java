@@ -6,19 +6,22 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.util.Unit;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.pbreadman.xcweaponry.XCWeaponry;
+import net.pbreadman.xcweaponry.ModConstants;
 import net.pbreadman.xcweaponry.items.custom.ModDataComponents;
 
 public enum MonadoArt {
@@ -36,8 +39,8 @@ public enum MonadoArt {
     private static final Map<String, MonadoArt> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(MonadoArt::getName, Function.identity()));
 
-    private static final double CYCLONE_RADIUS = 6.0D;
-    private static final int TOPPLE_DURATION_TICKS = 180;
+    public static final ResourceKey<DamageType> ENCHANT_DAMAGE_TYPE = ResourceKey.create(
+            Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(XCWeaponry.MOD_ID, "monado_enchant"));
     private static final String PREV_NO_AI_TAG = "xcweaponry_prev_noai";
 
     private final String name;
@@ -75,22 +78,38 @@ public enum MonadoArt {
     }
 
     public boolean hasUseAction() {
-        return this == SHIELD || this == ARMOUR || this == SPEED || this == ENCHANT || this == CYCLONE;
+        return this == SHIELD || this == ARMOUR || this == SPEED || this == CYCLONE;
+    }
+
+    public boolean hasOnHitEffect() {
+        return this == ENCHANT || this == BUSTER || this == EATER || this == PURGE;
+    }
+
+    public void applyOnArm(LivingEntity attacker) {
+        if (this == ENCHANT) {
+            attacker.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
+                    ModConstants.ENCHANT_STRENGTH_DURATION_TICKS, ModConstants.ENCHANT_STRENGTH_AMPLIFIER));
+        }
     }
 
     public void applyOnUse(Player player) {
         switch (this) {
-            case SHIELD -> player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 4));
+            case SHIELD -> player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,
+                    ModConstants.SHIELD_ABSORPTION_DURATION_TICKS, ModConstants.SHIELD_ABSORPTION_AMPLIFIER));
             case ARMOUR -> {
-                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2400, 1));
-                player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 2400, 1));
+                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
+                        ModConstants.ARMOUR_RESISTANCE_DURATION_TICKS, ModConstants.ARMOUR_RESISTANCE_AMPLIFIER));
+                player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,
+                        ModConstants.ARMOUR_FIRE_RESISTANCE_DURATION_TICKS, ModConstants.ARMOUR_FIRE_RESISTANCE_AMPLIFIER));
             }
             case SPEED -> {
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 2400, 1));
-                player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 2400, 1));
-                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 2400, 1));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,
+                        ModConstants.SPEED_EFFECT_DURATION_TICKS, ModConstants.SPEED_EFFECT_AMPLIFIER));
+                player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED,
+                        ModConstants.SPEED_EFFECT_DURATION_TICKS, ModConstants.SPEED_EFFECT_AMPLIFIER));
+                player.addEffect(new MobEffectInstance(MobEffects.JUMP,
+                        ModConstants.SPEED_EFFECT_DURATION_TICKS, ModConstants.SPEED_EFFECT_AMPLIFIER));
             }
-            case ENCHANT -> player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 2400, 1));
             case CYCLONE -> knockbackAround(player);
             default -> {
             }
@@ -99,19 +118,14 @@ public enum MonadoArt {
 
     public void applyOnHit(LivingEntity attacker, LivingEntity target) {
         switch (this) {
-            case BUSTER -> {
-                double damage = attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-                if (damage > 0.0D) {
-                    target.hurt(target.damageSources().magic(), (float) damage);
-                }
-            }
             case EATER -> {
-                target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 0));
-                attacker.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 0));
+                target.addEffect(new MobEffectInstance(MobEffects.WITHER,
+                        ModConstants.EATER_WITHER_DURATION_TICKS, ModConstants.EATER_WITHER_AMPLIFIER));
+                attacker.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
+                        ModConstants.EATER_REGENERATION_DURATION_TICKS, ModConstants.EATER_REGENERATION_AMPLIFIER));
             }
             case PURGE -> {
-                target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 0));
-                attacker.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, 200, 0));
+                target.getActiveEffectsMap().keySet().removeIf(effect -> effect.value().isBeneficial());
             }
             default -> {
             }
@@ -120,7 +134,7 @@ public enum MonadoArt {
 
     private void knockbackAround(Player player) {
         Level level = player.level();
-        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(CYCLONE_RADIUS),
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(ModConstants.CYCLONE_RADIUS),
                 entity -> entity.isAlive() && entity != player)) {
             double dx = entity.getX() - player.getX();
             double dz = entity.getZ() - player.getZ();
@@ -130,8 +144,10 @@ public enum MonadoArt {
                 dz = player.getRandom().nextDouble() - 0.5D;
                 dist = Math.max(1.0E-4D, Math.sqrt(dx * dx + dz * dz));
             }
-            double strength = 0.5D + 1.5D * (1.0D - dist / CYCLONE_RADIUS);
-            entity.setDeltaMovement(entity.getDeltaMovement().add(dx / dist * strength, 0.35D, dz / dist * strength));
+            double strength = ModConstants.CYCLONE_KNOCKBACK_BASE
+                    + ModConstants.CYCLONE_KNOCKBACK_SCALE * (1.0D - dist / ModConstants.CYCLONE_RADIUS);
+            entity.setDeltaMovement(entity.getDeltaMovement().add(
+                    dx / dist * strength, ModConstants.CYCLONE_KNOCKBACK_UPWARD, dz / dist * strength));
             entity.hurtMarked = true;
             if (entity instanceof Mob mob) {
                 topple(mob);
@@ -148,7 +164,7 @@ public enum MonadoArt {
         XCWeaponry.LOGGER.debug("Toppling {}", mob.getType());
         MinecraftServer server = mob.level().getServer();
         if (server != null) {
-            server.tell(new TickTask(server.getTickCount() + TOPPLE_DURATION_TICKS, () -> {
+            server.tell(new TickTask(server.getTickCount() + ModConstants.TOPPLE_DURATION_TICKS, () -> {
                 if (mob.isAlive() && mob.getPersistentData().contains(PREV_NO_AI_TAG)) {
                     mob.setNoAi(!mob.getPersistentData().getBoolean(PREV_NO_AI_TAG));
                     mob.getPersistentData().remove(PREV_NO_AI_TAG);

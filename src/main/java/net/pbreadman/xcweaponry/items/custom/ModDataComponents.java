@@ -1,5 +1,6 @@
 package net.pbreadman.xcweaponry.items.custom;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
@@ -31,4 +32,6 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("unlocks_component", b -> b.persistent(ResourceLocation.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> SELECTED_ART =
             DATA_COMPONENTS.registerComponentType("selected_art", b -> b.persistent(ResourceLocation.CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> ART_READY_UNTIL =
+            DATA_COMPONENTS.registerComponentType("art_ready_until", b -> b.persistent(Codec.LONG));
 }

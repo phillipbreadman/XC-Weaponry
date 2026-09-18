@@ -17,11 +17,10 @@ import net.pbreadman.xcweaponry.items.custom.UseableItem;
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(XCWeaponry.MOD_ID);
 
-    //enchant and buster should start on it
     public static final DeferredItem<SwordItem> MONADO = ITEMS.register("monado",
             () -> new MonadoBase(ModToolTiers.MONADO, new Item
                     .Properties()
-                    .attributes(SwordItem.createAttributes(ModToolTiers.MONADO, 3, -2.4f))
+                    .attributes(MonadoBase.baseWithArtBonus(2))
                     .fireResistant()
                     .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
                     .component(ModDataComponents.UNLOCKED_ENCHANT.get(), Unit.INSTANCE)
